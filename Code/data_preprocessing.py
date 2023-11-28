@@ -40,8 +40,11 @@ def make_iob_files():
                 start = int(start_end.split(' ')[0].strip())
                 end = int(start_end.split(' ')[1].strip())
                 entity = entity[1].strip()
-                
-        
+                # TODO: go from character indices to token indices
+                start_token = len(text[:start].split(' '))
+                end_token = len(text[:end].split(' '))
+                print(text.split(" ")[start_token:end_token])
+
         break
 
 if __name__ == '__main__':
