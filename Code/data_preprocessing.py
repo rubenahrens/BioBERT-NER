@@ -23,6 +23,10 @@ etc.
 """
 
 import os
+from transformers import AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
+
 
 def make_iob_files():
     for file in os.listdir('cadec/text'):
@@ -33,23 +37,36 @@ def make_iob_files():
         sct = sct.split('\n')
         iob = ''
         i=0
+        text_tokens = tokenizer.tokenize(text)
+        text_token_tuples = [(token, "O") for token in text_tokens]
+        print(text_token_tuples)
         for line in sct:
-            if line:
+            if "CONCEPT_LESS" not in line and line != '':
                 # TODO: don't just  pick the first entity if there are multiple
                 entity = line.split('|')
                 start_end = entity[-1].split('\t')[0].strip()
+                # TODO: handle multiple entities in one line (e.g. 9 19; 21 30) like in file ARTHROTEC.104.ann
+                # if ";" in start_end:
+                #     start_end = start_end.split(';')
+                #     for indices in start_end:
+                #         start = int(indices.split(' ')[0].strip())
+                #         end = int(indices.split(' ')[1].strip())
+                #         entity = entity[1].strip()
                 start = int(start_end.split(' ')[0].strip())
                 end = int(start_end.split(' ')[1].strip())
                 entity = entity[1].strip()
                 # TODO: go from character indices to token indices
-                zero_tokens = text[i:start].tokenize()
+                zero_tokens = tokenizer.tokenize(text[i:start])
                 for token in zero_tokens:
                     iob += token + ' O\n'
-                entity_tokens = text[start:end].tokenize()
+                entity_tokens = tokenizer.tokenize(text[start:end])
                 iob += entity_tokens[0] + ' B-' + entity + '\n'
                 for token in entity_tokens[1:]:
                     iob += token + ' I-' + entity + '\n'
                 i = end
+        zero_tokens = tokenizer.tokenize(text[i:])
+        for token in zero_tokens:
+            iob += token + ' O\n'
     with open('cadec/iob/' + file[:-4] + '.iob', 'w') as f:
         f.write(iob)
 
