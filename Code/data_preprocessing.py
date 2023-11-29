@@ -52,18 +52,19 @@ def make_iob_files():
                 #         start = int(indices.split(' ')[0].strip())
                 #         end = int(indices.split(' ')[1].strip())
                 #         entity = entity[1].strip()
-                start = int(start_end.split(' ')[0].strip())
-                end = int(start_end.split(' ')[1].strip())
-                entity = entity[1].strip()
-                # TODO: go from character indices to token indices
-                zero_tokens = tokenizer.tokenize(text[i:start])
-                for token in zero_tokens:
-                    iob += token + ' O\n'
-                entity_tokens = tokenizer.tokenize(text[start:end])
-                iob += entity_tokens[0] + ' B-' + entity + '\n'
-                for token in entity_tokens[1:]:
-                    iob += token + ' I-' + entity + '\n'
-                i = end
+                if ";" not in start_end:
+                    start = int(start_end.split(' ')[0].strip())
+                    end = int(start_end.split(' ')[1].strip())
+                    entity = entity[1].strip()
+                    # TODO: go from character indices to token indices
+                    zero_tokens = tokenizer.tokenize(text[i:start])
+                    for token in zero_tokens:
+                        iob += token + ' O\n'
+                    entity_tokens = tokenizer.tokenize(text[start:end])
+                    iob += entity_tokens[0] + ' B-' + entity + '\n'
+                    for token in entity_tokens[1:]:
+                        iob += token + ' I-' + entity + '\n'
+                    i = end
         zero_tokens = tokenizer.tokenize(text[i:])
         for token in zero_tokens:
             iob += token + ' O\n'
