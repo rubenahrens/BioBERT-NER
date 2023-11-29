@@ -32,6 +32,7 @@ def make_iob_files():
             sct = f.read()
         sct = sct.split('\n')
         iob = ''
+        i=0
         for line in sct:
             if line:
                 # TODO: don't just  pick the first entity if there are multiple
@@ -41,11 +42,16 @@ def make_iob_files():
                 end = int(start_end.split(' ')[1].strip())
                 entity = entity[1].strip()
                 # TODO: go from character indices to token indices
-                start_token = len(text[:start].split(' '))
-                end_token = len(text[:end].split(' '))
-                print(text.split(" ")[start_token:end_token])
-
-        break
+                zero_tokens = text[i:start].tokenize()
+                for token in zero_tokens:
+                    iob += token + ' O\n'
+                entity_tokens = text[start:end].tokenize()
+                iob += entity_tokens[0] + ' B-' + entity + '\n'
+                for token in entity_tokens[1:]:
+                    iob += token + ' I-' + entity + '\n'
+                i = end
+    with open('cadec/iob/' + file[:-4] + '.iob', 'w') as f:
+        f.write(iob)
 
 if __name__ == '__main__':
     make_iob_files()
