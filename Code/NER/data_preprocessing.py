@@ -3,6 +3,7 @@ import os
 from transformers import AutoTokenizer
 import numpy as np
 import datasets
+import matplotlib.pyplot as plt
 
 tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
 
@@ -10,10 +11,8 @@ tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
 OG_DATA_DIR = 'cadec/original/'
 TXT_DATA_DIR = 'cadec/text/'
 
-ENTITIES = ['O'
-            'B-ADR', 'B-Disease', 'B-Drug', 'B-Symptom', 'B-Finding',
-            'I-ADR', 'I-Disease', 'I-Drug', 'I-Symptom', 'I-Finding']
-
+ENTITIES = ['O','B-adr', 'B-disease', 'B-drug', 'B-symptom', 'B-finding',
+         'I-adr', 'I-disease', 'I-drug', 'I-symptom', 'I-finding']
 
 def remove_duplicates(labels, positions):
     """Removes duplicate labels and positions combinations."""
@@ -159,45 +158,89 @@ def get_random_split(file_names):
     return drug_names
 
 
-def read_data():
-    """Reads the .ann and .txt files and processes the data into iob format."""
+# def read_data():
+#     """Reads the .ann and .txt files and processes the data into iob format."""
+
+#     file_names = os.listdir(OG_DATA_DIR)
+#     file_names = [file[:-4] for file in file_names]
+    
+#     drug_names = get_random_split(file_names)
+
+#     raw_datasets = {'train':        {'id': [], 'tokens': [], 'ner_tags': []},
+#                     'validation':   {'id': [], 'tokens': [], 'ner_tags': []},
+#                     'test':         {'id': [], 'tokens': [], 'ner_tags': []}}
+    
+#     for file in file_names:
+
+#         name = file.split('.')[0]
+#         number = int(file.split('.')[1])
+#         dataset = 'train' if number in drug_names[name]['train'] else \
+#                     'validation' if number in drug_names[name]['validation'] else 'test'
+        
+#         with open(OG_DATA_DIR + file + '.ann', 'r') as f, open(TXT_DATA_DIR + file + '.txt', 'r') as f2:
+#             ann_data = f.readlines()
+#             if len(ann_data) == 0:
+#                 continue
+#             txt_data = f2.readlines()
+#             txt_data = ' '.join([line.strip() for line in txt_data])
+
+#             iob = apply_preprocessing(ann_data, txt_data)
+
+#             raw_datasets[dataset]['tokens'].append([token for token, _ in iob])
+#             raw_datasets[dataset]['ner_tags'].append([tag for _, tag in iob])
+    
+#     for dataset in raw_datasets:
+#         raw_datasets[dataset]['id'] = [i for i in range(len(raw_datasets[dataset]['tokens']))]
+#         raw_datasets[dataset] = datasets.Dataset.from_dict(raw_datasets[dataset])
+#     raw_datasets = datasets.DatasetDict(raw_datasets)
+#     raw_datasets.save_to_disk('cadec/processed')
+
+    # return raw_datasets
+
+
+def process_data():
+
+    txt_lengts = []
 
     file_names = os.listdir(OG_DATA_DIR)
     file_names = [file[:-4] for file in file_names]
-    
+
     drug_names = get_random_split(file_names)
 
-    raw_datasets = {'train':        {'id': [], 'tokens': [], 'ner_tags': []},
-                    'validation':   {'id': [], 'tokens': [], 'ner_tags': []},
-                    'test':         {'id': [], 'tokens': [], 'ner_tags': []}}
-    
-    for file in file_names:
+    with open('cadec/processed/train.ann', 'w') as f_train, \
+         open('cadec/processed/valid.ann', 'w') as f_valid, \
+         open('cadec/processed/test.ann', 'w') as f_test:
 
-        name = file.split('.')[0]
-        number = int(file.split('.')[1])
-        dataset = 'train' if number in drug_names[name]['train'] else \
-                    'validation' if number in drug_names[name]['validation'] else 'test'
-        
-        with open(OG_DATA_DIR + file + '.ann', 'r') as f, open(TXT_DATA_DIR + file + '.txt', 'r') as f2:
-            ann_data = f.readlines()
-            if len(ann_data) == 0:
-                continue
-            txt_data = f2.readlines()
-            txt_data = ' '.join([line.strip() for line in txt_data])
+        for file in file_names:
 
-            iob = apply_preprocessing(ann_data, txt_data)
+            name = file.split('.')[0]
+            number = int(file.split('.')[1])
+            
+            if number in drug_names[name]['train']:
+                f = f_train
+            elif number in drug_names[name]['validation']:
+                f = f_valid
+            else:
+                f = f_test
 
-            raw_datasets[dataset]['tokens'].append([token for token, _ in iob])
-            raw_datasets[dataset]['ner_tags'].append([tag for _, tag in iob])
-    
-    for dataset in raw_datasets:
-        raw_datasets[dataset]['id'] = [i for i in range(len(raw_datasets[dataset]['tokens']))]
-        raw_datasets[dataset] = datasets.Dataset.from_dict(raw_datasets[dataset])
-    raw_datasets = datasets.DatasetDict(raw_datasets)
-    raw_datasets.save_to_disk('cadec/processed')
+            with open(OG_DATA_DIR + file + '.ann', 'r') as f1, open(TXT_DATA_DIR + file + '.txt', 'r') as f2:
+                ann_data = f1.readlines()
+                if len(ann_data) == 0:
+                    continue
+                txt_data = f2.readlines()
+                txt_data = ' '.join([line.strip() for line in txt_data])
 
-    return raw_datasets
+                iob = apply_preprocessing(ann_data, txt_data)
+                txt_lengts.append(len(iob))
+                if len(iob) > 512:
+                    print(file, len(iob))
 
+                for token, tag in iob:
+                    f.write(f'{token}\t{tag}\n')
+                f.write('\n')
+
+    # plt.hist(txt_lengts, bins=50)
+    # plt.show()
 
 if __name__ == "__main__":
-    read_data()
+    process_data()

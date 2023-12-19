@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
 
 
-ENTITIES = ['O'
+ENTITIES = ['O',
             'B-ADR', 'B-Disease', 'B-Drug', 'B-Symptom', 'B-Finding',
             'I-ADR', 'I-Disease', 'I-Drug', 'I-Symptom', 'I-Finding']
 
@@ -61,7 +61,7 @@ def train(tokenized_datasets):
         weight_decay=0.01,
         push_to_hub=True,
     )
-
+    
     trainer = Trainer(
         model=model,
         args=training_args,
