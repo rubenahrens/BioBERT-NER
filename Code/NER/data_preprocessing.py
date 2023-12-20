@@ -232,11 +232,16 @@ def process_data():
 
                 iob = apply_preprocessing(ann_data, txt_data)
                 txt_lengts.append(len(iob))
-                if len(iob) > 512:
-                    print(file, len(iob))
 
+                iob_len = len(iob)
+                i=0
                 for token, tag in iob:
                     f.write(f'{token}\t{tag}\n')
+                    i+=1
+                    if iob_len > 512 and token == '.':
+                        iob_len -= i
+                        i = 0
+                        f.write('\n')
                 f.write('\n')
 
     # plt.hist(txt_lengts, bins=50)
