@@ -1,6 +1,8 @@
 # Fine-Tuning BioBERT on Medical Text
 
-A Text Mining project by Lucas de Wolf (s3672980) and Ruben Ahrens (s3677532)
+A Text Mining project by Lucas de Wolff (s3672980) and Ruben Ahrens (s3677532)
+
+Report: rubenahrens.com/docs/ahrens-dewolff2024biobert
 
 ## Project Overview
 
@@ -8,7 +10,6 @@ This project focuses on Named Entity Recognition (NER) in medical text, specific
 
 ## Repository Structure
 
-- `/bert-finetuned-ner/`: Contains fine-tuned BERT models for named entity recognition
 - `/cadec/`: The CSIRO Adverse Drug Event Corpus dataset
   - `/meddra/`: MedDRA annotations
   - `/original/`: Original text data
@@ -22,7 +23,6 @@ This project focuses on Named Entity Recognition (NER) in medical text, specific
   - `/Entity Linking/`: Code for entity linking tasks
   - `datastats.py`: Script for dataset statistics
   - `test.py`: Testing script
-- `/Results/`: Experimental results and output data
 
 ## Technologies Used
 
@@ -45,7 +45,7 @@ If you use the CADEC dataset:
 
 ## Contributors
 
-- Lucas de Wolf (s3672980)
+- Lucas de Wolff (s3672980)
 - Ruben Ahrens (s3677532)
 
 January 2024
