@@ -2,7 +2,7 @@
 
 A Text Mining project by Lucas de Wolff (s3672980) and Ruben Ahrens (s3677532)
 
-Report: [rubenahrens.com/docs/ahrens-dewolff2024biobert](rubenahrens.com/docs/ahrens-dewolff2024biobert)
+Report: [https://rubenahrens.com/docs/ahrens-dewolff2024biobert](https://rubenahrens.com/docs/ahrens-dewolff2024biobert)
 
 ## Project Overview
 
